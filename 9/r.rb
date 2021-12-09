@@ -6,9 +6,13 @@ Point = Struct.new(:x, :y)
 
 class HeightMap
   attr_reader :matrix
+  attr_accessor :visited_for_basin_detection
+
+  BASIN_MAX = 9
 
   def initialize(matrix)
     @matrix = matrix
+    @visited_for_basin_detection = Set.new
   end
 
   def adjacent_points(point)
@@ -22,6 +26,23 @@ class HeightMap
         point_values(adjacent_points(point)).all? { |value| value > point_value(point) } ? point : nil
       end.compact
     end.flatten
+  end
+
+  def detect_basin_for_point(point)
+    visited_for_basin_detection = Set.new
+    return nil if point_value(point) == BASIN_MAX
+
+    expand_basin_detection_from_point(point).uniq
+  end
+
+  def expand_basin_detection_from_point(point)
+    pts = adjacent_points(point).reject do |pt|
+      point_value(pt) == BASIN_MAX || visited_for_basin_detection.include?(pt)
+    end
+
+    visited_for_basin_detection.merge pts
+
+    [point, pts.flat_map { |pt| expand_basin_detection_from_point(pt) }].flatten
   end
 
   def risk_level
@@ -59,7 +80,11 @@ class HeightMap
   end
 end
 
-input = File.readlines("./input.txt")
-height_map = HeightMap.new(Matrix.rows(input.map{|line| line.chomp.split('').map(&:to_i)}))
+# input = File.readlines("./input.txt")
+# height_map = HeightMap.new(Matrix.rows(input.map{|line| line.chomp.split('').map(&:to_i)}))
 
-height_map.risk_level
+# height_map.risk_level
+# low_points = height_map.low_points
+
+# basins = low_points.map{|lp| height_map.detect_basin_for_point(lp)}
+# basins.map(&:length).sort.last(3).reduce(&:*)
