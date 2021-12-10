@@ -32,7 +32,7 @@ class HeightMap
     visited_for_basin_detection = Set.new
     return nil if point_value(point) == BASIN_MAX
 
-    expand_basin_detection_from_point(point).uniq
+    expand_basin_detection_from_point(point)
   end
 
   def expand_basin_detection_from_point(point)
@@ -40,7 +40,7 @@ class HeightMap
       point_value(pt) == BASIN_MAX || visited_for_basin_detection.include?(pt)
     end
 
-    visited_for_basin_detection.merge pts
+    visited_for_basin_detection.merge([pts, point].flatten)
 
     [point, pts.flat_map { |pt| expand_basin_detection_from_point(pt) }].flatten
   end
