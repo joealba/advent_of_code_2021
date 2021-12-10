@@ -27,7 +27,7 @@ class BracketParser
   end
 
   def parse
-    input.chars.each_with_index do |char, i|
+    input.chars.each do |char|
       if OPEN.include?(char)
         stack << char
       else
@@ -36,11 +36,12 @@ class BracketParser
         end
       end
     end
+
     nil
   end
 
   def parse_for_incomplete
-    input.chars.each_with_index do |char, i|
+    input.chars.each do |char|
       if OPEN.include?(char)
         stack << char
       else
@@ -49,6 +50,7 @@ class BracketParser
         end
       end
     end
+
     stack.reverse.flat_map{|c| CLOSE[OPEN.index(c)]}
   end
 
